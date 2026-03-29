@@ -1,87 +1,65 @@
-@import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-headline: "Manrope", sans-serif;
-  
-  --color-primary: #55589f;
-  --color-primary-dim: #494c92;
-  --color-primary-container: #b9bbff;
-  --color-on-primary: #fbf7ff;
-  --color-on-primary-container: #31357a;
-  
-  --color-secondary: #585f6d;
-  --color-secondary-container: #dfe5f6;
-  --color-on-secondary: #f8f8ff;
-  --color-on-secondary-container: #4d5461;
-  
-  --color-tertiary: #4e6365;
-  --color-tertiary-container: #cae1e4;
-  --color-on-tertiary: #e9fdff;
-  --color-on-tertiary-container: #3d5255;
-  
-  --color-surface: #f8f9fa;
-  --color-on-surface: #2e3335;
-  --color-on-surface-variant: #5a6062;
-  --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #f2f4f5;
-  --color-surface-container: #ebeef0;
-  --color-surface-container-high: #e5e9eb;
-  --color-surface-container-highest: #dee3e5;
-  
-  --color-error: #ac3149;
-  --color-on-error: #fff7f7;
-  
-  --color-outline: #767c7e;
-  --color-outline-variant: #aeb3b5;
-
-  --radius-lg: 2rem;
-  --radius-xl: 3rem;
+:root {
+  --giet-navy: #272A6F;
+  --giet-gold: #EFBE33;
+  --primary: #55589f;
+  --surface: #f8f9fa;
+  --surface-container-low: #f2f4f5;
+  --surface-container-lowest: #ffffff;
 }
 
-@layer base {
-  :root {
-    --safe-area-top: env(safe-area-inset-top, 0px);
-    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
-    --safe-area-left: env(safe-area-inset-left, 0px);
-    --safe-area-right: env(safe-area-inset-right, 0px);
-  }
-
-  html {
-    @apply h-full overflow-x-hidden select-none;
-    -webkit-text-size-adjust: 100%;
-  }
-
-  body {
-    @apply bg-surface text-on-surface font-sans antialiased h-full min-h-[100dvh] overflow-x-hidden;
-    overscroll-behavior-y: none;
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-  }
-
-  #root {
-    @apply min-h-[100dvh] flex flex-col;
-  }
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f8f9fa;
+  color: #2e3335;
 }
 
-@layer utilities {
-  .editorial-shadow {
-    box-shadow: 0px 12px 32px rgba(39, 42, 111, 0.06);
-  }
-  
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-
-  .safe-pt { padding-top: var(--safe-area-top); }
-  .safe-pb { padding-bottom: var(--safe-area-bottom); }
-  .safe-px { 
-    padding-left: var(--safe-area-left); 
-    padding-right: var(--safe-area-right); 
-  }
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
+
+/* Antigravity: Smooth transitions and app-like feel */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+input:focus, button:focus {
+  outline: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* The Editorial Scholar: Glassmorphism */
+.glass-header {
+  @apply bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-outline-variant/5;
+}
+
+.glass-nav {
+  @apply bg-white/90 backdrop-blur-xl z-[60] border-t border-outline-variant/10 shadow-ambient;
+}
+
+/* The Editorial Scholar: Depth Over Lines */
+.card-editorial {
+  @apply bg-surface-container-lowest rounded-[2rem] shadow-ambient transition-all duration-300;
+}
+
+.ghost-border {
+  @apply border border-outline-variant/15;
+}
+
+.editorial-gradient {
+  background: linear-gradient(135deg, #55589f 0%, #494c92 100%);
+}
+
