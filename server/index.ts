@@ -11,9 +11,14 @@ const port = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-// Initialize Supabase admin client for backend (using Anon key for now since Service Role isn't in env)
-const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://pbyggqsewoxhdbrkuzjt.supabase.co';
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBieWdncXNld294aGRicmt1emp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3NjA1OTQsImV4cCI6MjA4MzMzNjU5NH0.ouB9HCyqH-p9MXv3ycW8bDH4VKrvqUzsn779FVQ3Nus';
+// Initialize Supabase admin client for backend
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error("CRITICAL: Supabase credentials missing from Environment. Ensure .env is loaded.");
+}
+
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Helper to get formatted date
