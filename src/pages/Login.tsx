@@ -1,5 +1,6 @@
 import { useState, useEffect, FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "../lib/supabase";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -23,34 +24,24 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identifier, password })
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email: identifier.includes('@') ? identifier : `${identifier.toLowerCase()}@nexusgiet.edu.in`,
+        password: password
       });
 
-      let result;
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        result = await response.json();
-      } else {
-        const text = await response.text();
-        throw new Error(text || `Server Error: ${response.status}`);
+      if (authError) throw authError;
+
+      if (data.user) {
+        // 1. Store PIN for dynamic data fetching across the app
+        const studentPin = data.user.user_metadata?.pin_number || identifier;
+        localStorage.setItem("student_pin", studentPin);
+
+        if (rememberMe) {
+          localStorage.setItem("isLoggedIn", "true");
+        }
+
+        navigate('/home');
       }
-
-      if (!response.ok) {
-        throw new Error(result.error || "Login failed");
-      }
-
-      // 1. Store PIN for dynamic data fetching across the app
-      const studentPin = result.session_pin || result.user?.pin_number || identifier;
-      localStorage.setItem("student_pin", studentPin);
-
-      if (rememberMe) {
-        localStorage.setItem("isLoggedIn", "true");
-      }
-
-      navigate('/home');
     } catch (err: any) {
       setError(err.message);
     } finally {
