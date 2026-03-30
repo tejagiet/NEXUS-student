@@ -1,14 +1,13 @@
 import React, { useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { LogIn, UserPlus, Loader2, Eye, EyeOff, ShieldCheck, ChevronDown } from 'lucide-react'
+import { LogIn, UserPlus, Loader2, Eye, EyeOff, ShieldCheck, ChevronDown, Badge, Check, HelpCircle, Shield } from 'lucide-react'
 
 const BRANCHES = ['CME', 'ECE', 'EEE', 'MECH', 'CIVIL', 'AI', 'OTHER']
-
-const INPUT = "w-full bg-white/10 border border-white/20 text-white rounded-xl px-4 py-3 text-sm placeholder-white/30 focus:outline-none focus:border-[#EFBE33] focus:ring-1 focus:ring-[#EFBE33] transition-all"
 
 export default function Auth() {
   const [loading, setLoading] = useState(false)
   const [showPass, setShowPass] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
   const [error, setError] = useState(null)
 
   // Sign-in fields
@@ -20,7 +19,9 @@ export default function Auth() {
     setLoading(true); setError(null)
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      // Auto-suffix if not an email
+      const finalEmail = email.includes('@') ? email : `${email.toLowerCase()}@nexusgiet.edu.in`
+      const { error } = await supabase.auth.signInWithPassword({ email: finalEmail, password })
       if (error) throw error
     } catch (err) {
       setError(err.message)
@@ -43,88 +44,155 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
-      style={{ background: 'linear-gradient(135deg, #272A6F 0%, #1a1d4e 50%, #272A6F 100%)' }}>
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50 text-on-surface relative overflow-hidden">
+      
+      {/* Decorative blobs - subtle for light theme */}
+      <div className="absolute top-[-10%] right-[-5%] w-[400px] h-[400px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
 
-      {/* Decorative blobs */}
-      <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] bg-[#EFBE33] rounded-full blur-[160px] opacity-10 pointer-events-none" />
-      <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] bg-[#EFBE33] rounded-full blur-[160px] opacity-5 pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-white/5 rounded-full pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-white/5 rounded-full pointer-events-none" />
-
-      <div className="w-full max-w-md relative z-10">
-        {/* Brand */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-[#EFBE33] rounded-2xl shadow-2xl shadow-[#EFBE33]/30 mb-4">
-            <span className="text-[#272A6F] font-black text-3xl">NG</span>
-          </div>
-          <h1 className="text-white font-black text-4xl tracking-tight">Nexus GIET</h1>
-          <p className="text-white/40 text-sm mt-1 tracking-widest uppercase">Polytechnic ERP Platform</p>
+      {/* Top Section: Branding */}
+      <header className="flex flex-col items-center mb-10 relative z-10">
+        <div className="w-20 h-20 mb-4 rounded-3xl bg-primary flex items-center justify-center shadow-2xl shadow-primary/20 overflow-hidden">
+          <span className="material-symbols-outlined text-white text-5xl" style={{ fontVariationSettings: "'FILL' 1" }}>school</span>
         </div>
+        <h1 className="font-headline font-black text-3xl tracking-tighter text-[#272A6F] uppercase">
+          Nexus GIET
+        </h1>
+        <p className="font-sans text-on-surface-variant text-[10px] font-black mt-1 tracking-[0.3em] opacity-40 uppercase">Empowering Academic Excellence</p>
+      </header>
 
-        {/* Card */}
-        <div className="rounded-3xl p-8 shadow-2xl border border-white/10"
-          style={{ background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(24px)' }}>
+      {/* Middle Section: Login Card */}
+      <main className="w-full max-w-md relative z-10">
+        <div className="bg-white rounded-[2.5rem] p-8 shadow-[0_32px_64px_-16px_rgba(39,42,111,0.1)] border border-outline-variant/10">
+          <div className="mb-8">
+            <h2 className="font-headline font-black text-2xl text-[#272A6F] mb-1 uppercase tracking-tight">Student Login</h2>
+            <p className="font-body text-on-surface-variant/60 text-xs font-medium">Please enter your credentials to access your dashboard.</p>
+          </div>
 
-          <h2 className="text-white text-xl font-bold mb-1">Welcome Back</h2>
-          <p className="text-white/40 text-sm mb-6">Sign in with your GIET credentials</p>
+          <form className="space-y-6" onSubmit={handleAuth}>
+            {error && (
+              <div className="bg-error/5 border border-error/10 text-error text-[11px] p-4 rounded-2xl font-bold animate-in fade-in slide-in-from-top-1">
+                {error}
+              </div>
+            )}
 
-          {error && <div className="mb-4 p-3 rounded-xl bg-red-500/20 border border-red-500/30 text-red-300 text-sm">{error}</div>}
-
-          <form onSubmit={handleAuth} className="space-y-4">
-            {/* Email */}
-            <div>
-              <label className="block text-xs text-white/50 mb-1.5 font-medium uppercase tracking-wider">Email Address</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
-                className={INPUT} placeholder="id@giet.ac.in" />
+            {/* Email Field */}
+            <div className="space-y-2">
+              <label className="font-headline text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant px-1" htmlFor="email-id">
+                Scholar ID or Email
+              </label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-primary/40 group-focus-within:text-primary transition-colors">
+                  <span className="material-symbols-outlined text-[20px]">badge</span>
+                </div>
+                <input
+                  className="w-full pl-12 pr-4 py-4 bg-surface-container-low border-none rounded-2xl text-on-surface placeholder:text-on-surface-variant/30 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all font-body text-sm outline-none shadow-inner"
+                  id="email-id"
+                  placeholder="PIN or Institutional Email"
+                  type="text"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
             </div>
 
-            {/* Password */}
-            <div>
-              <label className="block text-xs text-white/50 mb-1.5 font-medium uppercase tracking-wider">Password</label>
-              <div className="relative">
-                <input type={showPass ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} required
-                  minLength={6}
-                  className={INPUT + ' pr-11'} placeholder="••••••••" />
-                <button type="button" onClick={() => setShowPass(s => !s)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/80">
-                  {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+            {/* Password Field */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center px-1">
+                <label className="font-headline text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant" htmlFor="password">
+                  Password
+                </label>
+              </div>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-primary/40 group-focus-within:text-primary transition-colors">
+                  <span className="material-symbols-outlined text-[20px]">lock_open</span>
+                </div>
+                <input
+                  className="w-full pl-12 pr-12 py-4 bg-surface-container-low border-none rounded-2xl text-on-surface placeholder:text-on-surface-variant/30 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all font-body text-sm outline-none shadow-inner"
+                  id="password"
+                  placeholder="••••••••"
+                  type={showPass ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPass(!showPass)}
+                  className="absolute inset-y-0 right-4 flex items-center text-primary/20 hover:text-primary transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[20px]">
+                    {showPass ? "visibility_off" : "visibility"}
+                  </span>
                 </button>
               </div>
             </div>
 
-            {/* Submit */}
-            <button type="submit" disabled={loading}
-              className="w-full bg-[#EFBE33] hover:bg-[#d9ab2e] text-[#272A6F] font-black py-4 rounded-xl transition-all flex items-center justify-center space-x-2 shadow-lg shadow-[#EFBE33]/20 active:scale-95 mt-2 disabled:opacity-70">
-              {loading ? <Loader2 className="animate-spin" size={20} /> : <LogIn size={20} />}
-              <span>{loading ? 'Authenticating...' : 'Launch Portal'}</span>
+            {/* Remember Me & Forgot Password */}
+            <div className="flex justify-between items-center px-1">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <div className="relative flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="peer appearance-none w-5 h-5 border-2 border-outline-variant rounded-lg checked:bg-primary checked:border-primary transition-all duration-200"
+                  />
+                  <Check className="absolute text-white size-3.5 left-0.5 pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" />
+                </div>
+                <span className="font-headline text-[10px] font-black text-on-surface-variant/60 group-hover:text-on-surface uppercase tracking-widest transition-colors">Remember Me</span>
+              </label>
+              <a className="text-primary font-headline text-[10px] font-black hover:underline decoration-2 underline-offset-4 uppercase tracking-widest" href="#">
+                Forgot Password?
+              </a>
+            </div>
+
+            {/* Login Button */}
+            <button
+              disabled={loading}
+              className={`w-full py-5 bg-[#272A6F] text-white font-headline font-black text-xs uppercase tracking-[0.25em] rounded-full shadow-xl shadow-primary/20 active:scale-[0.98] transition-all hover:bg-primary-900 mt-4 flex items-center justify-center gap-3 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+              type="submit"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Authenticating...
+                </>
+              ) : "Launch Portal"}
             </button>
 
-            <div className="flex items-center my-4">
-              <div className="flex-1 border-t border-white/10" />
-              <span className="px-3 text-[10px] text-white/20 font-black uppercase tracking-widest">Or Secure Login with</span>
-              <div className="flex-1 border-t border-white/10" />
+            <div className="flex items-center py-2">
+              <div className="flex-1 border-t border-dashed border-outline-variant/30" />
+              <span className="px-4 text-[9px] text-on-surface-variant/30 font-black uppercase tracking-widest">Secure Connect</span>
+              <div className="flex-1 border-t border-dashed border-outline-variant/30" />
             </div>
 
             <button type="button" onClick={signInWithGoogle} disabled={loading}
-              className="w-full bg-white text-gray-800 font-bold py-3.5 rounded-xl transition-all flex items-center justify-center space-x-3 shadow-md hover:bg-gray-50 active:scale-95 disabled:opacity-50">
-              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
+              className="w-full bg-surface-container-low text-on-surface font-headline font-black text-[10px] uppercase tracking-widest py-4 rounded-full transition-all flex items-center justify-center gap-3 hover:bg-surface-container-high active:scale-95 disabled:opacity-50 border border-outline-variant/5">
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-4 h-4" />
               <span>Continue with Google</span>
             </button>
           </form>
+        </div>
+      </main>
 
-          <div className="mt-8 pt-6 border-t border-white/10 flex flex-col items-center space-y-4 text-center">
-            <p className="text-white/30 text-[10px] leading-relaxed">
-              Google Sign-in is restricted to pre-authorized accounts.<br/>
-              New signups are disabled by SOC Admin.
-            </p>
-            <div className="flex items-center space-x-1.5 text-white/20 text-xs">
-              <ShieldCheck size={12} />
-              <span>Secured Environment — Admin Approval Required</span>
-            </div>
+      {/* Bottom Section: Footer Links */}
+      <footer className="mt-12 text-center relative z-10">
+        <p className="font-body text-on-surface-variant/60 text-xs font-medium">
+          New Scholar? <a className="text-primary font-bold hover:underline" href="#">Contact Administration</a>
+        </p>
+        <div className="mt-8 flex items-center justify-center space-x-8">
+          <div className="flex items-center space-x-2 text-on-surface-variant/40 hover:text-primary transition-all cursor-pointer">
+            <span className="material-symbols-outlined text-lg">help_outline</span>
+            <span className="text-[10px] font-black uppercase tracking-tighter">Support</span>
+          </div>
+          <div className="flex items-center space-x-2 text-on-surface-variant/40 hover:text-primary transition-all cursor-pointer">
+            <span className="material-symbols-outlined text-lg">security</span>
+            <span className="text-[10px] font-black uppercase tracking-tighter">Privacy</span>
           </div>
         </div>
-      </div>
+      </footer>
     </div>
   )
 }

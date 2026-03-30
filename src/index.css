@@ -18,6 +18,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: #f8f9fa;
   color: #2e3335;
+  overscroll-behavior-y: none; /* Disable pull-to-refresh on mobile */
 }
 
 .material-symbols-outlined {

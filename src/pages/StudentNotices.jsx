@@ -54,8 +54,8 @@ export default function StudentNotices({ profile }) {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
       {/* Header & Tabs */}
-      <header className="sticky top-0 glass-header z-30 -mx-4 pt-6 pb-2">
-        <div className="px-6 space-y-6">
+      <header className="sticky top-0 glass-header z-30 -mx-4 pt-4 pb-1">
+        <div className="px-5 space-y-4">
           <div className="flex items-center justify-between">
             <h1 className="font-headline font-black text-2xl text-primary tracking-tighter uppercase leading-none">Bulletin</h1>
             <div className="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary transition-all">
@@ -67,10 +67,10 @@ export default function StudentNotices({ profile }) {
               <button 
                 key={t}
                 onClick={() => setActiveTab(t)}
-                className={`flex-1 py-4 text-[10px] font-black uppercase tracking-[0.3em] relative transition-all ${activeTab === t ? 'text-primary' : 'text-on-surface-variant/40'}`}
+                className={`flex-1 py-3 text-[10px] font-black uppercase tracking-[0.3em] relative transition-all ${activeTab === t ? 'text-primary' : 'text-on-surface-variant/40'}`}
               >
                 {t}
-                {activeTab === t && <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-t-full shadow-[0_-4px_12px_rgba(85,88,159,0.3)]"></div>}
+                {activeTab === t && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full shadow-[0_-4px_12px_rgba(85,88,159,0.3)]"></div>}
               </button>
             ))}
           </div>
@@ -78,12 +78,12 @@ export default function StudentNotices({ profile }) {
       </header>
 
       {/* Filter Chips */}
-      <div className="flex gap-4 overflow-x-auto no-scrollbar py-8 px-2">
+      <div className="flex gap-3 overflow-x-auto no-scrollbar py-6 px-1">
         {categories.map(cat => (
           <button 
             key={cat}
             onClick={() => setActiveCategory(cat)}
-            className={`px-8 py-3 rounded-full text-[9px] font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap active:scale-95 ${activeCategory === cat ? 'bg-primary text-white shadow-ambient' : 'bg-surface-container-low text-on-surface-variant/50 hover:bg-surface-container-high'}`}
+            className={`px-5 py-2.5 rounded-full text-[8.5px] font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap active:scale-95 ${activeCategory === cat ? 'bg-primary text-white shadow-ambient' : 'bg-surface-container-low text-on-surface-variant/50 hover:bg-surface-container-high'}`}
           >
             {cat}
           </button>
@@ -91,37 +91,37 @@ export default function StudentNotices({ profile }) {
       </div>
 
       {/* Notices List */}
-      <div className="space-y-8 px-2">
+      <div className="space-y-6 px-1">
         {filteredNotices.map((n, i) => (
-          <article key={n.id} className="card-editorial p-8 animate-in fade-in slide-in-from-bottom-6 transition-all group">
+          <article key={n.id} className="card-editorial p-5 animate-in fade-in slide-in-from-bottom-6 transition-all group">
             {/* Author Header */}
-            <div className="flex items-center gap-5 mb-8">
-              <div className="w-14 h-14 rounded-2xl bg-primary/5 flex items-center justify-center text-primary font-headline font-black text-2xl shadow-inner border border-primary/5">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary font-headline font-black text-lg shadow-inner border border-primary/5">
                 {n.profiles?.full_name?.[0] || 'N'}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-primary/40 text-[9px] font-black uppercase tracking-[0.2em] mb-1">Board Official</p>
-                <h3 className="font-headline font-black text-on-surface leading-none text-base truncate uppercase tracking-tight">{n.profiles?.full_name}</h3>
-                <p className="text-on-surface-variant/40 text-[9px] font-black uppercase tracking-widest mt-1.5 opacity-60">
+                <p className="text-primary/40 text-[8px] font-black uppercase tracking-[0.2em] mb-0.5">Board Official</p>
+                <h3 className="font-headline font-black text-on-surface leading-none text-sm truncate uppercase tracking-tight">{n.profiles?.full_name}</h3>
+                <p className="text-on-surface-variant/40 text-[8px] font-black uppercase tracking-widest mt-1 opacity-60">
                    {new Date(n.created_at).toLocaleDateString()}
                 </p>
               </div>
-              <button className="w-10 h-10 rounded-full flex items-center justify-center text-outline-variant hover:bg-primary/5 transition-all">
-                <span className="material-symbols-outlined text-[20px]">more_horiz</span>
+              <button className="w-8 h-8 rounded-full flex items-center justify-center text-outline-variant hover:bg-primary/5 transition-all">
+                <span className="material-symbols-outlined text-[18px]">more_horiz</span>
               </button>
             </div>
 
             {/* Content */}
-            <div className="space-y-4 mb-8">
-              <h2 className="font-headline text-2xl font-black text-primary leading-tight tracking-tighter uppercase">{n.title}</h2>
-              <p className="text-on-surface-variant text-sm font-medium leading-relaxed opacity-70">
+            <div className="space-y-3 mb-6">
+              <h2 className="font-headline text-xl font-black text-primary leading-tight tracking-tighter uppercase">{n.title}</h2>
+              <p className="text-on-surface-variant text-[13px] font-medium leading-relaxed opacity-70">
                 {n.content}
               </p>
             </div>
 
             {/* Editorial Image */}
             {i % 2 === 0 && (
-               <div className="aspect-[16/10] w-full overflow-hidden rounded-[2rem] bg-surface-container-low mb-8 shadow-ambient group-hover:scale-[1.02] transition-transform duration-700">
+               <div className="aspect-[16/10] w-full overflow-hidden rounded-[1.5rem] bg-surface-container-low mb-6 shadow-ambient group-hover:scale-[1.01] transition-transform duration-700">
                   <img 
                     src={`https://picsum.photos/seed/${n.id}/800/500`} 
                     alt="Notice banner" 
@@ -158,8 +158,8 @@ export default function StudentNotices({ profile }) {
       </div>
 
       {/* FAB (Floating Action Button) */}
-      <button className="fixed bottom-32 right-8 w-16 h-16 bg-primary text-white rounded-full shadow-ambient flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-40 border border-white/20">
-        <span className="material-symbols-outlined text-white text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>add_comment</span>
+      <button className="fixed bottom-32 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-ambient flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-40 border border-white/20">
+        <span className="material-symbols-outlined text-white text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>add_comment</span>
       </button>
 
       <style dangerouslySetInnerHTML={{ __html: `

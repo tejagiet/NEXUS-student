@@ -1,53 +1,97 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 
 const SLOT_TIMES = {
-  1: '09:00 AM - 10:00 AM',
-  2: '10:00 AM - 11:00 AM',
-  3: '11:00 AM - 12:00 PM',
-  4: '12:00 PM - 01:00 PM',
-  5: '02:00 PM - 03:00 PM',
-  6: '03:00 PM - 04:00 PM',
-  7: '04:00 PM - 05:00 PM'
+  1: '09:30 AM - 10:15 AM',
+  2: '10:15 AM - 11:00 AM',
+  3: '11:00 AM - 11:45 AM',
+  4: '11:45 AM - 12:30 PM',
+  5: '01:15 PM - 02:15 PM',
+  6: '02:15 PM - 03:15 PM',
+  7: '03:15 PM - 04:15 PM'
 }
+
+const DAYS_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
 export default function StudentSchedule({ profile }) {
   const [schedule, setSchedule] = useState([])
   const [loading, setLoading] = useState(true)
-  const [selectedDay, setSelectedDay] = useState(new Date().toLocaleDateString('en-US', { weekday: 'long' }))
+  const [viewMode, setViewMode] = useState('day') // 'day' or 'week'
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
+  const [dates, setDates] = useState([])
+  
+  const scrollRef = useRef(null)
+  const todayRef = useRef(null)
 
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
-  const weekDates = days.map((day, i) => {
+  // Generate 120 days rolling window for the semester
+  useEffect(() => {
+    const generated = []
     const today = new Date()
-    const currentDay = today.getDay() // 0-6
-    const diff = i + 1 - currentDay
-    const date = new Date(today)
-    date.setDate(today.getDate() + diff)
-    return {
-      name: day,
-      short: day.substring(0, 3),
-      date: date.getDate(),
-      isToday: day === new Date().toLocaleDateString('en-US', { weekday: 'long' })
+    
+    // 30 days back, 90 days forward
+    for (let i = -30; i <= 90; i++) {
+      const d = new Date()
+      d.setDate(today.getDate() + i)
+      
+      // Skip Sundays (Holy-day)
+      if (d.getDay() === 0) continue;
+
+      generated.push({
+        fullDate: d.toISOString().split('T')[0],
+        dayName: d.toLocaleDateString('en-US', { weekday: 'long' }),
+        shortDay: d.toLocaleDateString('en-US', { weekday: 'short' }),
+        dateNum: d.getDate(),
+        month: d.toLocaleDateString('en-US', { month: 'short' }),
+        isToday: d.toLocaleDateString('en-US') === today.toLocaleDateString('en-US')
+      })
     }
-  })
+    setDates(generated)
+
+    // Auto-scroll to today
+    setTimeout(() => {
+      if (todayRef.current && scrollRef.current) {
+        const scrollContainer = scrollRef.current
+        const todayElement = todayRef.current
+        const scrollLeft = todayElement.offsetLeft - (scrollContainer.clientWidth / 2) + (todayElement.clientWidth / 2)
+        scrollContainer.scrollTo({ left: scrollLeft, behavior: 'smooth' })
+      }
+    }, 500)
+  }, [])
 
   useEffect(() => {
+    setSchedule(viewMode === 'week' ? {} : [])
     fetchSchedule()
-  }, [profile.id, selectedDay])
+  }, [profile.id, selectedDate, viewMode])
 
   async function fetchSchedule() {
     setLoading(true)
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('timetable_slots')
         .select('*, subjects(name, code)')
         .eq('branch', profile.branch)
         .eq('semester', 'Sem 4') // Default
         .eq('section', profile.section)
-        .eq('day', selectedDay)
-        .order('slot', { ascending: true })
+      
+      if (viewMode === 'day') {
+        const dayName = new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long' })
+        query = query.eq('day', dayName)
+      }
 
-      if (data) setSchedule(data)
+      const { data, error } = await query.order('slot', { ascending: true })
+
+      if (data) {
+        if (viewMode === 'week') {
+          const grouped = data.reduce((acc, slot) => {
+            if (!acc[slot.day]) acc[slot.day] = []
+            acc[slot.day].push(slot)
+            return acc
+          }, {})
+          setSchedule(grouped)
+        } else {
+          setSchedule(data)
+        }
+      }
     } catch (err) {
       console.error("Schedule Fetch Error:", err)
     } finally {
@@ -55,94 +99,130 @@ export default function StudentSchedule({ profile }) {
     }
   }
 
+  const renderSlotCard = (slot, i) => (
+    <div key={i} className="card-editorial p-4 flex flex-col gap-4 group active:scale-[0.98]">
+      <div className="flex justify-between items-start">
+        <div className="space-y-0.5">
+          <p className="font-label text-[8px] font-black text-primary/40 uppercase tracking-[0.2em]">{SLOT_TIMES[slot.slot]}</p>
+          <h3 className="font-headline font-black text-on-surface text-base tracking-tight leading-tight uppercase line-clamp-1">{slot.subjects?.name}</h3>
+        </div>
+        <div className={`px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${slot.type === 'lab' ? 'bg-indigo-50 text-indigo-600' : 'bg-teal-50 text-teal-600'}`}>
+          {slot.type || 'Lecture'}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between pt-3 border-t border-surface-container-low">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-surface-container-low flex items-center justify-center text-primary border border-outline-variant/10 shadow-inner">
+                <span className="font-headline font-black text-xs">{slot.subjects?.name.charAt(0)}</span>
+            </div>
+            <div>
+                <p className="text-[8px] font-black text-on-surface-variant uppercase tracking-widest opacity-40">Faculty</p>
+                <p className="text-[10px] font-bold text-primary">DR. V. SHARMA</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-[8px] font-black text-on-surface-variant uppercase tracking-widest opacity-40">Status</p>
+            <p className="text-[10px] font-bold text-primary italic uppercase tracking-tighter">Scheduled</p>
+          </div>
+      </div>
+    </div>
+  )
+
   return (
     <div className="animate-in fade-in duration-700 h-full">
-      {/* Schedule Header Section */}
-      <section className="editorial-gradient pt-8 pb-16 px-6 -mx-4 shadow-ambient relative z-30">
-        <div className="flex items-center justify-between mb-10">
-          <div className="flex items-center gap-4 text-white">
-            <h2 className="font-headline font-black text-3xl tracking-tighter">Daily Planner</h2>
-          </div>
-          <div className="flex items-center gap-2 text-white/80 bg-white/10 px-4 py-2 rounded-full backdrop-blur-md border border-white/10">
-            <span className="material-symbols-outlined text-sm">calendar_month</span>
-            <span className="font-label text-xs font-black uppercase tracking-widest">March</span>
+      {/* Ultra-Compact Schedule Header */}
+      <section className="editorial-gradient pt-2 pb-3 px-5 -mx-4 shadow-ambient relative z-30">
+        <div className="flex items-center justify-between mb-2">
+          <span className="font-headline font-black text-[10px] uppercase tracking-[0.2em] text-white/40">Planner</span>
+          <div className="flex bg-white/5 p-0.5 rounded-full backdrop-blur-md border border-white/5">
+            <button 
+              onClick={() => setViewMode('day')}
+              className={`px-3 py-0.5 rounded-full text-[7px] font-black uppercase tracking-widest transition-all ${viewMode === 'day' ? 'bg-white text-primary shadow-sm' : 'text-white/40'}`}
+            >
+              Daily
+            </button>
+            <button 
+              onClick={() => setViewMode('week')}
+              className={`px-3 py-0.5 rounded-full text-[7px] font-black uppercase tracking-widest transition-all ${viewMode === 'week' ? 'bg-white text-primary shadow-sm' : 'text-white/40'}`}
+            >
+              Weekly
+            </button>
           </div>
         </div>
 
-        {/* Date Selector Tab */}
-        <div className="flex justify-between items-end overflow-x-auto hide-scrollbar">
-          {weekDates.map((day, i) => (
-            selectedDay === day.name ? (
-              <div key={i} className="bg-white rounded-t-[2.5rem] px-6 pt-6 pb-3 flex flex-col items-center gap-1 shadow-ambient relative z-10 scale-110 origin-bottom transition-all duration-500">
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/40">{day.short}</span>
-                <span className="text-2xl font-black text-primary leading-none mb-1">{day.date}</span>
-                <div className="w-1 h-1 rounded-full bg-primary/20"></div>
-              </div>
-            ) : (
+        {/* Ultra-Compact Date Scroller */}
+        {viewMode === 'day' && (
+          <div 
+            ref={scrollRef}
+            className="flex gap-2 overflow-x-auto no-scrollbar py-1 -mx-2 items-end snap-x"
+          >
+            {dates.map((d, i) => (
               <button 
-                key={i} 
-                onClick={() => setSelectedDay(day.name)}
-                className="flex flex-col items-center gap-2 px-4 py-6 text-white/40 hover:text-white transition-all active:scale-90"
+                key={i}
+                ref={d.isToday ? todayRef : null}
+                onClick={() => setSelectedDate(d.fullDate)}
+                className={`snap-center flex flex-col items-center gap-0.5 min-w-[40px] transition-all duration-500 rounded-[1rem] py-2 ${selectedDate === d.fullDate ? 'bg-white text-primary px-3 shadow-2xl scale-110 z-10' : 'text-white/30 hover:text-white'}`}
               >
-                <span className="text-[9px] font-bold uppercase tracking-[0.2em]">{day.short}</span>
-                <span className="text-xl font-bold">{day.date}</span>
+                <span className={`text-[6px] font-black uppercase tracking-[0.1em] ${selectedDate === d.fullDate ? 'text-primary' : 'text-white/30'}`}>{d.shortDay}</span>
+                <span className={`text-sm font-black ${selectedDate === d.fullDate ? 'text-primary' : 'text-white'}`}>{d.dateNum}</span>
               </button>
-            )
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Schedule Cards Area */}
-      <section className="bg-surface min-h-screen px-6 pt-12 pb-32 -mt-8 rounded-t-[3rem] relative z-20 -mx-4">
-        <div className="flex flex-col gap-8 max-w-2xl mx-auto">
+      <section className="bg-surface min-h-screen px-4 pt-8 pb-32 -mt-4 rounded-t-[2rem] relative z-20 -mx-4">
+        <div className="flex flex-col gap-8 max-w-xl mx-auto">
           {loading ? (
              <div className="py-20 flex flex-col items-center justify-center opacity-40">
                 <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
-                <p className="font-black text-[10px] uppercase tracking-widest text-primary">Fetching slots...</p>
+                <p className="font-black text-[10px] uppercase tracking-widest text-primary">Fetching schedule...</p>
              </div>
-          ) : schedule.length === 0 ? (
-            <div className="py-32 text-center text-on-surface-variant/30 italic flex flex-col items-center">
-              <span className="material-symbols-outlined text-5xl mb-4 opacity-20">event_busy</span>
-              <p className="font-headline font-bold uppercase tracking-widest text-xs">No academic activities</p>
+          ) : viewMode === 'day' ? (
+            <div className="flex flex-col gap-4">
+              <div className="px-1 flex justify-between items-center mb-1">
+                 <p className="font-headline font-black text-primary text-[10px] uppercase tracking-[0.3em]">
+                   {new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                 </p>
+              </div>
+              {schedule.length === 0 ? (
+                <div className="py-32 text-center text-on-surface-variant/30 italic flex flex-col items-center">
+                  <span className="material-symbols-outlined text-5xl mb-4 opacity-20">event_busy</span>
+                  <p className="font-headline font-bold uppercase tracking-widest text-xs">No academic activities</p>
+                </div>
+              ) : (
+                Array.isArray(schedule) && schedule.map((slot, i) => renderSlotCard(slot, i))
+              )}
             </div>
           ) : (
-            schedule.map((slot, i) => (
-              <div key={i} className="card-editorial p-8 flex flex-col gap-6 group active:scale-[0.98]">
-                <div className="flex justify-between items-start">
-                  <div className="space-y-1">
-                    <p className="font-label text-[10px] font-black text-primary/40 uppercase tracking-[0.2em]">{SLOT_TIMES[slot.slot]}</p>
-                    <h3 className="font-headline font-black text-on-surface text-xl tracking-tight leading-tight uppercase">{slot.subjects?.name}</h3>
+            /* Weekly View Mode (Now includes Saturday) */
+            <div className="flex flex-col gap-10 animate-in fade-in duration-500">
+              {DAYS_ORDER.map((day) => (
+                <div key={day} className="space-y-4">
+                  <div className="flex items-center gap-4 px-2">
+                    <h3 className="font-headline font-black text-primary text-[10px] uppercase tracking-[0.3em]">{day}</h3>
+                    <div className="flex-1 h-px bg-outline-variant/10"></div>
                   </div>
-                  <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${slot.type === 'lab' ? 'bg-indigo-50 text-indigo-600' : 'bg-teal-50 text-teal-600'}`}>
-                    {slot.type || 'Lecture'}
+                  <div className="flex flex-col gap-4">
+                    {schedule[day]?.length > 0 ? (
+                      schedule[day].map((slot, i) => renderSlotCard(slot, i))
+                    ) : (
+                      <p className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant/20 italic px-4 py-2">No scheduled classes</p>
+                    )}
                   </div>
                 </div>
-
-                <div className="flex items-center justify-between pt-4 border-t border-surface-container-low">
-                   <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-2xl bg-surface-container-low flex items-center justify-center text-primary border border-outline-variant/10 shadow-inner">
-                         <span className="font-headline font-black text-sm">{slot.subjects?.name.charAt(0)}</span>
-                      </div>
-                      <div>
-                         <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Faculty Advisor</p>
-                         <p className="text-xs font-bold text-primary">DR. V. SHARMA</p>
-                      </div>
-                   </div>
-                   <div className="text-right">
-                      <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Location</p>
-                      <p className="text-xs font-bold text-primary">ROOM {slot.room || 'L-402'}</p>
-                   </div>
-                </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
 
-          {!loading && schedule.length > 0 && (
+          {!loading && ((viewMode === 'day' && schedule.length > 0) || (viewMode === 'week')) && (
              <div className="relative py-8 flex items-center justify-center">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-dashed border-outline-variant/30"></div>
               </div>
-              <div className="relative px-4 bg-surface-container-low">
+              <div className="relative px-4 bg-surface-container-low text-center">
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-on-surface-variant/50">End of Session</span>
               </div>
             </div>
@@ -151,12 +231,10 @@ export default function StudentSchedule({ profile }) {
       </section>
 
       <style dangerouslySetInnerHTML={{ __html: `
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .writing-mode-vertical {
-          writing-mode: vertical-rl;
-          text-orientation: mixed;
-        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .snap-x { scroll-snap-type: x mandatory; }
+        .snap-center { scroll-snap-align: center; }
       `}} />
     </div>
   )

@@ -61,21 +61,21 @@ export default function StudentAttendance({ profile }) {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
       {/* Header with back button */}
-      <div className="flex items-center gap-4 py-2">
-         <h1 className="font-headline font-bold text-xl text-primary">Attendance Analytics</h1>
+      <div className="flex items-center gap-4 py-1">
+         <h1 className="font-headline font-bold text-lg text-primary">Attendance Analytics</h1>
       </div>
 
       {/* Summary Card */}
       <section>
-        <div className="editorial-gradient rounded-[2.5rem] p-10 flex flex-col items-center justify-center gap-4 shadow-ambient relative overflow-hidden">
+        <div className="editorial-gradient rounded-[2rem] p-6 flex flex-col items-center justify-center gap-2 shadow-ambient relative overflow-hidden">
           {/* Decorative glass orbs */}
-          <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
-          <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
           
-          <span className="text-white/60 font-label text-[10px] font-black uppercase tracking-[0.3em] relative z-10">Global Presence</span>
-          <p className="text-white font-headline text-6xl font-black tracking-tighter relative z-10">{overall}%</p>
+          <span className="text-white/60 font-label text-[8px] font-black uppercase tracking-[0.3em] relative z-10 opacity-70">Global Presence</span>
+          <p className="text-white font-headline text-4xl font-black tracking-tighter relative z-10">{overall}%</p>
           
-          <div className="w-full max-w-[200px] bg-white/20 h-1.5 rounded-full mt-2 overflow-hidden relative z-10">
+          <div className="w-full max-w-[160px] bg-white/20 h-1 rounded-full mt-1 overflow-hidden relative z-10">
             <div 
               className="bg-white h-full transition-all duration-1000 ease-out shadow-[0_0_12px_rgba(255,255,255,0.5)]" 
               style={{ width: `${overall}%` }}
@@ -85,44 +85,45 @@ export default function StudentAttendance({ profile }) {
       </section>
 
       {/* Weekly Trend (Visual Only Placeholder as in HTML) */}
-      <section className="space-y-4">
-        <div className="flex justify-between items-end gap-3 h-40 px-4 bg-surface-container-low rounded-2xl py-6 border border-outline-variant/10">
+      <section className="space-y-3">
+        <div className="flex justify-between items-end gap-2 h-28 px-4 bg-surface-container-low rounded-xl py-4 border border-outline-variant/10">
           {[70, 45, 30, 90, 55].map((h, i) => (
-            <div key={i} className="flex flex-col items-center flex-1 gap-2 h-full justify-end">
+            <div key={i} className="flex flex-col items-center flex-1 gap-1.5 h-full justify-end">
               <div 
-                className={`w-full rounded-t-xl transition-all duration-1000 ease-out`} 
+                className={`w-full rounded-t-lg transition-all duration-1000 ease-out`} 
                 style={{ height: `${h}%`, backgroundColor: h > 60 ? '#4DB6AC' : '#F06292' }}
               />
-              <span className="text-[10px] font-bold text-on-surface-variant uppercase">{['Mon', 'Tue', 'Wed', 'Thu', 'Fri'][i]}</span>
+              <span className="text-[8px] font-bold text-on-surface-variant uppercase opacity-50">{['Mon', 'Tue', 'Wed', 'Thu', 'Fri'][i]}</span>
             </div>
           ))}
         </div>
         <div className="flex justify-center">
-          <div className="bg-surface-container px-4 py-2 rounded-full flex items-center gap-2 border border-outline-variant/5">
-            <span className="material-symbols-outlined text-[16px] text-primary">insights</span>
-            <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Weekly trend</span>
+          <div className="bg-surface-container/60 px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-outline-variant/5">
+            <span className="material-symbols-outlined text-[14px] text-primary">insights</span>
+            <span className="text-[8px] font-black text-on-surface-variant uppercase tracking-widest opacity-60">Visual Analysis</span>
           </div>
         </div>
       </section>
 
       {/* Course Breakdown List */}
-      <section className="space-y-6">
-        <h2 className="font-label text-[10px] font-black text-primary/40 px-2 uppercase tracking-[0.2em]">Curated Breakdown</h2>
+      <section className="space-y-4">
+        <h2 className="font-label text-[8px] font-black text-primary/40 px-2 uppercase tracking-[0.2em]">Curated Breakdown</h2>
         <div className="space-y-4">
           {attendance.map((sub, i) => {
             const status = getStatusLabel(sub.percentage);
             return (
-              <div key={i} className="card-editorial p-6 flex items-center justify-between group cursor-pointer active:scale-[0.98]">
-                <div className="flex items-center gap-5">
-                  <div className={`w-1.5 h-12 rounded-full ${status.bg} opacity-20 group-hover:opacity-100 transition-all`}></div>
+              <div key={i} className="card-editorial p-4 flex items-center justify-between group cursor-pointer active:scale-[0.98]">
+                <div className="flex items-center gap-4">
+                  <div className={`w-1 h-9 rounded-full ${status.bg} opacity-20 group-hover:opacity-100 transition-all`}></div>
                   <div>
-                    <p className="font-headline font-black text-sm text-primary uppercase tracking-tight">{sub.name}</p>
-                    <p className="text-[10px] text-on-surface-variant/50 font-black uppercase tracking-widest mt-0.5">{sub.code}</p>
+                    <p className="font-headline font-black text-sm text-primary uppercase tracking-tight leading-tight">{sub.name}</p>
+                    <p className="text-[9px] text-on-surface-variant/40 font-black uppercase tracking-widest mt-0.5">{sub.code}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-headline font-black text-primary text-xl tracking-tighter">{sub.percentage}%</p>
-                  <p className={`text-[8px] ${status.color} font-black uppercase tracking-wider`}>{status.label}</p>
+                  <p className="font-headline font-black text-primary text-lg tracking-tighter leading-tight">{sub.percentage}%</p>
+                  <p className="text-[8px] font-black text-on-surface-variant/40 uppercase tracking-widest leading-none mb-1">{sub.present} / {sub.total}</p>
+                  <p className={`text-[7px] ${status.color} font-black uppercase tracking-[0.1em]`}>{status.label}</p>
                 </div>
               </div>
             )
@@ -137,14 +138,14 @@ export default function StudentAttendance({ profile }) {
       </section>
 
       {/* Smart Tip Banner */}
-      <section className="bg-primary/5 p-6 rounded-2xl border border-primary/10">
-        <div className="flex gap-4">
-          <div className="bg-primary p-3 rounded-2xl h-fit shadow-lg shadow-primary/20">
-            <span className="material-symbols-outlined text-white text-[20px]">lightbulb</span>
+      <section className="bg-primary/5 p-4 rounded-2xl border border-primary/10">
+        <div className="flex gap-3">
+          <div className="bg-primary p-2.5 rounded-xl h-fit shadow-lg shadow-primary/20">
+            <span className="material-symbols-outlined text-white text-[18px]">lightbulb</span>
           </div>
           <div>
-            <h3 className="font-headline font-bold text-primary">Smart Analysis</h3>
-            <p className="text-sm text-on-surface/70 mt-1 leading-relaxed">
+            <h3 className="font-headline font-bold text-xs text-primary leading-tight">Smart Analysis</h3>
+            <p className="text-[10px] text-on-surface/70 mt-1 leading-relaxed font-medium">
               {overall < 75 
                 ? "You are currently below the required 75% threshold. Aim to attend all classes next week to recover."
                 : "Great job! You are maintaining a healthy attendance level. Keep it up for your internal marks."}

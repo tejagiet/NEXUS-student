@@ -24,7 +24,7 @@ export default function StudentHome({ profile, setTab }) {
           .eq('section', profile.section)
           .eq('day', today)
           .order('slot', { ascending: true }),
-        supabase.from('profiles').select('academic_fee, transport_fee, academic_fee_paid, transport_fee_paid').eq('id', profile.id).single()
+        supabase.from('fees').select('total_fee, paid_fee').eq('student_id', profile.id).maybeSingle()
       ])
 
       if (attendRes.data) {
@@ -45,8 +45,8 @@ export default function StudentHome({ profile, setTab }) {
       
       if (profileRes.data) {
         setFeeStatus({
-          total: (profileRes.data.academic_fee || 0) + (profileRes.data.transport_fee || 0),
-          paid: (profileRes.data.academic_fee_paid || 0) + (profileRes.data.transport_fee_paid || 0)
+          total: profileRes.data.total_fee || 0,
+          paid: profileRes.data.paid_fee || 0
         })
       }
     } catch (err) {
@@ -85,10 +85,10 @@ export default function StudentHome({ profile, setTab }) {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Greeting Section */}
-      <section className="card-editorial p-8 space-y-6">
-        <div className="space-y-2">
-          <p className="font-label text-primary font-black uppercase tracking-[0.25em] text-[10px] opacity-60">{formatDate()}</p>
-          <h1 className="font-headline font-black text-3xl text-on-surface leading-tight">
+      <section className="card-editorial p-5 space-y-4">
+        <div className="space-y-1">
+          <p className="font-label text-primary font-black uppercase tracking-[0.25em] text-[8px] opacity-60">{formatDate()}</p>
+          <h1 className="font-headline font-black text-2xl text-on-surface leading-tight">
             {getGreeting()},<br/>
             <span className="text-primary">{profile?.full_name?.split(' ')[0] || 'Scholar'}</span>
           </h1>
@@ -106,57 +106,46 @@ export default function StudentHome({ profile, setTab }) {
       </section>
 
       {/* Essentials Section */}
-      <section className="space-y-6">
-        <h2 className="font-label text-[10px] tracking-[0.3em] font-black text-primary/40 px-2 uppercase">LATEST INSIGHTS</h2>
-        <div className="grid grid-cols-2 gap-6">
+      <section className="space-y-4">
+        <h2 className="font-label text-[8px] tracking-[0.3em] font-black text-primary/40 px-2 uppercase">LATEST INSIGHTS</h2>
+        <div className="grid grid-cols-2 gap-4">
           {/* Attendance Card */}
-          <div onClick={() => setTab('attendance')} className="card-editorial p-6 flex flex-col justify-between aspect-square cursor-pointer active:scale-95 group">
-            <div className="w-12 h-12 bg-[#E8F5E9] rounded-2xl flex items-center justify-center mb-4 group-hover:rotate-6 transition-transform">
-              <span className="material-symbols-outlined text-green-800" style={{ fontVariationSettings: "'FILL' 1" }}>analytics</span>
+          <div onClick={() => setTab('attendance')} className="card-editorial p-4 flex flex-col justify-between aspect-square cursor-pointer active:scale-95 group">
+            <div className="w-10 h-10 bg-[#E8F5E9] rounded-2xl flex items-center justify-center mb-2 group-hover:rotate-6 transition-transform">
+              <span className="material-symbols-outlined text-green-800 text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>analytics</span>
             </div>
             <div>
-              <p className="font-label text-[10px] font-black text-on-surface-variant/40 uppercase tracking-widest mb-1">Attendance</p>
-              <h3 className="font-headline font-black text-on-surface text-3xl">{overall}%</h3>
+              <p className="font-label text-[8px] font-black text-on-surface-variant/40 uppercase tracking-widest mb-0.5">Attendance</p>
+              <h3 className="font-headline font-black text-on-surface text-2xl">{overall}%</h3>
             </div>
           </div>
 
           {/* Fee Payments Card */}
-          <div className="card-editorial p-6 flex flex-col justify-between aspect-square cursor-pointer active:scale-95 group bg-[#FFF9F9]">
-            <div className="w-12 h-12 bg-[#FCE4EC] rounded-2xl flex items-center justify-center mb-4 group-hover:-rotate-6 transition-transform">
-              <span className="material-symbols-outlined text-pink-800" style={{ fontVariationSettings: "'FILL' 1" }}>payments</span>
+          <div onClick={() => setTab('fees')} className="card-editorial p-4 flex flex-col justify-between aspect-square cursor-pointer active:scale-95 group bg-[#FFF9F9]">
+            <div className="w-10 h-10 bg-[#FCE4EC] rounded-2xl flex items-center justify-center mb-2 group-hover:-rotate-6 transition-transform">
+              <span className="material-symbols-outlined text-pink-800 text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>payments</span>
             </div>
             <div>
-              <p className="font-label text-[10px] font-black text-on-surface-variant/40 uppercase tracking-widest mb-1">Account</p>
-              <p className="font-headline font-black text-on-surface text-lg leading-tight">INR {balance.toLocaleString()}</p>
+              <p className="font-label text-[8px] font-black text-on-surface-variant/40 uppercase tracking-widest mb-0.5">Student Fees</p>
+              <p className="font-headline font-black text-on-surface text-base leading-tight">₹{balance.toLocaleString()}</p>
             </div>
           </div>
 
-          {/* Campus Events Card */}
-          <div className="card-editorial p-6 flex flex-col justify-between aspect-square cursor-pointer active:scale-95 group border-none">
-            <div className="w-12 h-12 bg-[#EDE7F6] rounded-2xl flex items-center justify-center mb-4">
-              <span className="material-symbols-outlined text-purple-800" style={{ fontVariationSettings: "'FILL' 1" }}>event_available</span>
+          {/* LMS Quick Connect Card */}
+          <div onClick={() => setTab('academics')} className="card-editorial p-4 flex flex-col justify-between aspect-square cursor-pointer active:scale-95 group">
+            <div className="w-10 h-10 bg-[#E0F7FA] rounded-2xl flex items-center justify-center mb-2">
+              <span className="material-symbols-outlined text-cyan-800 text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>menu_book</span>
             </div>
             <div>
-              <p className="font-label text-[10px] font-black text-on-surface-variant/40 uppercase tracking-widest mb-1">Campus</p>
-              <h3 className="font-headline font-black text-on-surface text-lg">4 Events</h3>
-            </div>
-          </div>
-
-          {/* Campus Clubs Card */}
-          <div className="card-editorial p-6 flex flex-col justify-between aspect-square cursor-pointer active:scale-95 group">
-            <div className="w-12 h-12 bg-[#E0F7FA] rounded-2xl flex items-center justify-center mb-4">
-              <span className="material-symbols-outlined text-cyan-800" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
-            </div>
-            <div>
-              <p className="font-label text-[10px] font-black text-on-surface-variant/40 uppercase tracking-widest mb-1">Clubs</p>
-              <h3 className="font-headline font-black text-on-surface text-lg">Nexus One</h3>
+              <p className="font-label text-[8px] font-black text-on-surface-variant/40 uppercase tracking-widest mb-0.5">LMS Portal</p>
+              <h3 className="font-headline font-black text-on-surface text-base">Course Hub</h3>
             </div>
           </div>
         </div>
       </section>
 
       {/* Featured Section */}
-      <section className="editorial-gradient rounded-[3rem] shadow-ambient overflow-hidden relative min-h-[200px] flex flex-col justify-end p-8 group cursor-pointer active:scale-[0.98] transition-all">
+      <section className="editorial-gradient rounded-[2.5rem] shadow-ambient overflow-hidden relative min-h-[160px] flex flex-col justify-end p-6 group cursor-pointer active:scale-[0.98] transition-all">
         <div className="absolute inset-0 z-0 overflow-hidden">
           <img 
             className="w-full h-full object-cover opacity-20 mix-blend-overlay group-hover:scale-110 transition-transform duration-1000" 
@@ -164,10 +153,10 @@ export default function StudentHome({ profile, setTab }) {
             src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcb1YOTj9y23S69XYuM-K1QA7V6KGIMBvCaZ5U_Tl0FexMvVgEB3s08FHpZBxZbPnjGLQUTeF_51SJw722hBXGnwJi6BWpDKdd0Makfih5u4_eGUyIkrVvD5BI3kMPMeKTVt4HiT_moaJm9KovWcxsIEXb1WMvMbkWYzHaWv5IEBpukQ199WoW8LN9Q2ryug7ai9nFVkjWbrO87u2Fqj1leEv6788hxC5EsgQNC7DAR90Z77U504byvfg0ePh9QRiBVGhSRlysfqY"
           />
         </div>
-        <div className="relative z-10 space-y-2">
-          <span className="bg-white/20 backdrop-blur-sm text-white font-label text-[10px] px-3 py-1 rounded-full uppercase tracking-widest font-black">Trending Now</span>
-          <h3 className="font-headline font-black text-2xl text-white tracking-tight">Quantum Mechanics II</h3>
-          <p className="font-body text-white/70 text-xs font-medium">Available now for borrowing in the main library wing.</p>
+        <div className="relative z-10 space-y-1">
+          <span className="bg-white/20 backdrop-blur-sm text-white font-label text-[8px] px-2.5 py-1 rounded-full uppercase tracking-widest font-black text-xs">Trending Now</span>
+          <h3 className="font-headline font-black text-xl text-white tracking-tight">Quantum Mechanics II</h3>
+          <p className="font-body text-white/70 text-[10px] font-medium leading-relaxed">Available for borrowing in the main wing.</p>
         </div>
       </section>
 

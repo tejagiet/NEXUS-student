@@ -7,6 +7,7 @@ import StudentChatList from './pages/StudentChatList'
 import StudentChatRoom from './pages/StudentChatRoom'
 import StudentNotices from './pages/StudentNotices'
 import StudentProfile from './pages/StudentProfile'
+import FinancePortal from './components/FinancePortal'
 import { supabase } from './lib/supabase'
 
 export default function StudentApp({ profile, session }) {
@@ -16,14 +17,15 @@ export default function StudentApp({ profile, session }) {
 
   const renderPage = () => {
     switch (activeTab) {
-      case 'home': return <StudentHome profile={profile} />
+      case 'home': return <StudentHome profile={profile} setTab={setActiveTab} />
       case 'attendance': return <StudentAttendance profile={profile} />
       case 'schedule': return <StudentSchedule profile={profile} />
       case 'academics': return <StudentAcademics profile={profile} />
       case 'chat': return <StudentChatList profile={profile} onSelectRoom={(room) => setActiveRoom(room)} />
       case 'notices': return <StudentNotices profile={profile} />
       case 'profile': return <StudentProfile profile={profile} session={session} />
-      default: return <StudentHome profile={profile} />
+      case 'fees': return <FinancePortal profile={profile} />
+      default: return <StudentHome profile={profile} setTab={setActiveTab} />
     }
   }
 
@@ -66,7 +68,7 @@ export default function StudentApp({ profile, session }) {
       </header>
 
       {/* Main Content Area */}
-      <main className="max-w-2xl mx-auto px-6 pt-2">
+      <main className="max-w-xl mx-auto px-4 pt-2">
         {renderPage()}
       </main>
 
@@ -124,12 +126,13 @@ export default function StudentApp({ profile, session }) {
 
              <div className="flex-1 space-y-2 overflow-y-auto no-scrollbar">
                 {[
-                   { id: 'attendance', label: 'Attendance', icon: 'analytics' },
-                   { id: 'academics', label: 'LMS Portal', icon: 'school' },
-                   { id: 'schedule', label: 'Daily Schedule', icon: 'calendar_month' },
-                   { id: 'chat', label: 'Faculty Help', icon: 'contact_support' },
-                   { id: 'profile', label: 'Settings', icon: 'settings' },
-                ].map(item => (
+                    { id: 'attendance', label: 'Attendance', icon: 'analytics' },
+                    { id: 'academics', label: 'LMS Portal', icon: 'school' },
+                    { id: 'fees', label: 'Fee Payments', icon: 'payments' },
+                    { id: 'schedule', label: 'Daily Schedule', icon: 'calendar_month' },
+                    { id: 'chat', label: 'Faculty Help', icon: 'contact_support' },
+                    { id: 'profile', label: 'Settings', icon: 'settings' },
+                 ].map(item => (
                    <button 
                       key={item.id}
                       onClick={() => { setActiveTab(item.id); setIsDrawerOpen(false); }}

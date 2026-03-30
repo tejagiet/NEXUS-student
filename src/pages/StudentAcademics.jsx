@@ -51,54 +51,54 @@ export default function StudentAcademics({ profile }) {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
       {/* Header */}
-      <div className="py-6 mb-4">
-         <h1 className="font-headline font-black text-3xl text-primary tracking-tighter uppercase leading-none">Curriculum</h1>
-         <p className="text-on-surface-variant font-black text-[10px] uppercase tracking-[0.3em] mt-3 opacity-40">Academic Portfolio • Semester IV</p>
+      <div className="py-4 mb-2">
+         <h1 className="font-headline font-black text-2xl text-primary tracking-tighter uppercase leading-none">Curriculum</h1>
+         <p className="text-on-surface-variant font-black text-[8px] uppercase tracking-[0.3em] mt-2 opacity-40">Academic Portfolio • Semester IV</p>
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex items-center gap-10 mb-10 border-b border-outline-variant/5">
+      <div className="flex items-center gap-6 mb-6 border-b border-outline-variant/5">
         <button 
           onClick={() => setActiveTab('courses')}
-          className={`relative pb-5 transition-all ${activeTab === 'courses' ? 'text-primary' : 'text-on-surface-variant/40'}`}
+          className={`relative pb-3 transition-all ${activeTab === 'courses' ? 'text-primary' : 'text-on-surface-variant/40'}`}
         >
-          <span className="text-[11px] font-black uppercase tracking-[0.25em]">Courses</span>
-          {activeTab === 'courses' && <div className="absolute bottom-0 left-0 w-full h-1 bg-primary rounded-t-full shadow-ambient"></div>}
+          <span className="text-[10px] font-black uppercase tracking-[0.25em]">Courses</span>
+          {activeTab === 'courses' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-primary rounded-t-full shadow-ambient"></div>}
         </button>
         <button 
           onClick={() => setActiveTab('growth')}
-          className={`relative pb-5 transition-all ${activeTab === 'growth' ? 'text-primary' : 'text-on-surface-variant/40'}`}
+          className={`relative pb-3 transition-all ${activeTab === 'growth' ? 'text-primary' : 'text-on-surface-variant/40'}`}
         >
-          <span className="text-[11px] font-black uppercase tracking-[0.25em]">Growth</span>
-          {activeTab === 'growth' && <div className="absolute bottom-0 left-0 w-full h-1 bg-primary rounded-t-full shadow-ambient"></div>}
+          <span className="text-[10px] font-black uppercase tracking-[0.25em]">Growth</span>
+          {activeTab === 'growth' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-primary rounded-t-full shadow-ambient"></div>}
         </button>
       </div>
 
       {activeTab === 'courses' ? (
         <div className="space-y-6">
           <div className="flex items-center justify-between px-1">
-            <span className="text-on-surface-variant font-label text-[10px] uppercase tracking-[0.2em] font-black">Current: IV Semester</span>
-            <span className="text-primary font-bold text-[10px] uppercase tracking-widest">{profile?.branch} Dept</span>
+            <span className="text-on-surface-variant font-label text-[8px] uppercase tracking-[0.2em] font-black opacity-60">Current: IV Semester</span>
+            <span className="text-primary font-bold text-[8px] uppercase tracking-widest">{profile?.branch} Dept</span>
           </div>
 
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4">
             {subjects.map((sub, i) => {
               const color = colors[i % colors.length];
               return (
-                <div key={i} className="card-editorial p-6 flex items-center gap-6 group hover:scale-[1.02] active:scale-[0.98]">
-                  <div className={`w-16 h-16 rounded-[1.5rem] ${color.bg} flex items-center justify-center flex-shrink-0 shadow-inner group-hover:rotate-6 transition-transform`}>
-                    <span className={`font-headline font-black ${color.text} text-2xl`}>{getShorthand(sub.name)}</span>
+                <div key={i} className="card-editorial p-4 flex items-center gap-4 group hover:scale-[1.01] active:scale-[0.98]">
+                  <div className={`w-12 h-12 rounded-2xl ${color.bg} flex items-center justify-center flex-shrink-0 shadow-inner group-hover:rotate-6 transition-transform`}>
+                    <span className={`font-headline font-black ${color.text} text-xl`}>{getShorthand(sub.name)}</span>
                   </div>
                   <div className="flex flex-col flex-1">
-                    <p className="font-label text-primary/40 font-black text-[9px] uppercase tracking-[0.2em] mb-1">{sub.code}</p>
-                    <h3 className="font-headline font-black text-on-surface text-lg leading-tight uppercase tracking-tight">{sub.name}</h3>
-                    <div className="flex items-center gap-2 mt-2">
-                       <span className="w-1.5 h-1.5 rounded-full bg-primary/20"></span>
-                       <p className="font-body text-on-surface-variant/40 text-[9px] font-black uppercase tracking-widest leading-none">CORE MODULE</p>
+                    <p className="font-label text-primary/40 font-black text-[8px] uppercase tracking-[0.2em] mb-0.5">{sub.code}</p>
+                    <h3 className="font-headline font-black text-on-surface text-base leading-tight uppercase tracking-tight">{sub.name}</h3>
+                    <div className="flex items-center gap-1.5 mt-1">
+                       <span className="w-1 h-1 rounded-full bg-primary/20"></span>
+                       <p className="font-body text-on-surface-variant/40 text-[8px] font-black uppercase tracking-widest leading-none">CORE MODULE</p>
                     </div>
                   </div>
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container-low text-primary opacity-0 group-hover:opacity-100 transition-all">
-                    <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center bg-surface-container-low text-primary opacity-0 group-hover:opacity-100 transition-all">
+                    <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
                   </div>
                 </div>
               )
@@ -106,11 +106,11 @@ export default function StudentAcademics({ profile }) {
           </div>
 
           {/* Featured Curriculum Card */}
-          <div className="mt-12 p-10 rounded-[3rem] editorial-gradient relative overflow-hidden shadow-ambient group active:scale-[0.98] transition-all cursor-pointer">
-            <div className="relative z-10 flex flex-col items-start gap-4">
-              <span className="text-white/40 font-label text-[10px] font-black tracking-[0.4em] uppercase">Advanced Learning</span>
-              <h2 className="text-white font-headline font-black text-3xl max-w-[220px] leading-tight tracking-tighter uppercase">Intelligent Systems</h2>
-              <button className="mt-4 bg-white/10 backdrop-blur-md text-white border border-white/20 px-8 py-3 rounded-full font-black text-[10px] uppercase tracking-[0.2em] shadow-lg group-hover:bg-white group-hover:text-primary transition-all">
+          <div className="mt-8 p-6 rounded-[2rem] editorial-gradient relative overflow-hidden shadow-ambient group active:scale-[0.98] transition-all cursor-pointer min-h-[140px] flex flex-col justify-center">
+            <div className="relative z-10 flex flex-col items-start gap-3">
+              <span className="text-white/40 font-label text-[8px] font-black tracking-[0.4em] uppercase">Advanced Learning</span>
+              <h2 className="text-white font-headline font-black text-2xl max-w-[180px] leading-tight tracking-tighter uppercase">Intelligent Systems</h2>
+              <button className="mt-2 bg-white/10 backdrop-blur-md text-white border border-white/20 px-6 py-2.5 rounded-full font-black text-[8px] uppercase tracking-[0.2em] shadow-lg group-hover:bg-white group-hover:text-primary transition-all">
                 Launch Module
               </button>
             </div>

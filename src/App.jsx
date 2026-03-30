@@ -22,7 +22,17 @@ export default function App() {
       }
     })
 
-    return () => subscription.unsubscribe()
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = ''; // Standard for showing "Discard changes?" browser prompt
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    }
   }, [])
 
   useEffect(() => {
