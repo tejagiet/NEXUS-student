@@ -141,7 +141,7 @@ export default function StudentHome({ profile, setTab }) {
           </div>
 
           {/* Academic Calendar Card (Holidays) */}
-          <div onClick={() => setTab('calendar')} className="card-editorial p-4 flex flex-col justify-between aspect-square cursor-pointer active:scale-95 group bg-[#FFFBEB]">
+          <div onClick={() => setTab('schedule')} className="card-editorial p-4 flex flex-col justify-between aspect-square cursor-pointer active:scale-95 group bg-[#FFFBEB]">
             <div className="w-10 h-10 bg-[#FEF3C7] rounded-2xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
               <span className="material-symbols-outlined text-amber-800 text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>event_note</span>
             </div>
