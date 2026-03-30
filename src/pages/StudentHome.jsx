@@ -6,6 +6,7 @@ export default function StudentHome({ profile, setTab }) {
   const [loading,    setLoading]     = useState(true)
   const [schedule,   setSchedule]    = useState([])
   const [feeStatus,  setFeeStatus]   = useState({ total: 0, paid: 0 })
+  const [upcomingEvent, setUpcomingEvent] = useState(null)
 
   useEffect(() => {
     fetchDashboardData()
@@ -15,16 +16,23 @@ export default function StudentHome({ profile, setTab }) {
     setLoading(true)
     try {
       const today = new Date().toLocaleDateString('en-US', { weekday: 'long' })
+      const todayISO = new Date().toISOString().split('T')[0]
       
-      const [attendRes, ttRes, profileRes] = await Promise.all([
+      const [attendRes, ttRes, profileRes, eventRes] = await Promise.all([
         supabase.from('attendance').select('status, subjects(name)').eq('student_id', profile.id),
         supabase.from('timetable_slots').select('*, subjects(name, code)')
           .eq('branch', profile.branch)
-          .eq('semester', 'Sem 4') 
+          .eq('semester', profile.semester || 'Sem 4') 
           .eq('section', profile.section)
           .eq('day', today)
           .order('slot', { ascending: true }),
-        supabase.from('fees').select('total_fee, paid_fee').eq('student_id', profile.id).maybeSingle()
+        supabase.from('fees').select('total_fee, paid_fee').eq('student_id', profile.id).maybeSingle(),
+        supabase.from('academic_calendar')
+          .select('*')
+          .gte('date', todayISO)
+          .order('date', { ascending: true })
+          .limit(1)
+          .maybeSingle()
       ])
 
       if (attendRes.data) {
@@ -42,6 +50,7 @@ export default function StudentHome({ profile, setTab }) {
       }
 
       setSchedule(ttRes.data || [])
+      setUpcomingEvent(eventRes.data || null)
       
       if (profileRes.data) {
         setFeeStatus({
@@ -128,6 +137,24 @@ export default function StudentHome({ profile, setTab }) {
             <div>
               <p className="font-label text-[8px] font-black text-on-surface-variant/40 uppercase tracking-widest mb-0.5">Student Fees</p>
               <p className="font-headline font-black text-on-surface text-base leading-tight">₹{balance.toLocaleString()}</p>
+            </div>
+          </div>
+
+          {/* Academic Calendar Card (Holidays) */}
+          <div onClick={() => setTab('calendar')} className="card-editorial p-4 flex flex-col justify-between aspect-square cursor-pointer active:scale-95 group bg-[#FFFBEB]">
+            <div className="w-10 h-10 bg-[#FEF3C7] rounded-2xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined text-amber-800 text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>event_note</span>
+            </div>
+            <div>
+              <p className="font-label text-[8px] font-black text-on-surface-variant/40 uppercase tracking-widest mb-0.5">Campus Events</p>
+              {upcomingEvent ? (
+                <div className="space-y-0.5">
+                  <h3 className="font-headline font-black text-amber-900 text-[10px] uppercase line-clamp-1">{upcomingEvent.title}</h3>
+                  <p className="font-headline font-black text-amber-700 text-xs">{new Date(upcomingEvent.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}</p>
+                </div>
+              ) : (
+                <h3 className="font-headline font-black text-on-surface-variant/20 text-xs uppercase">No Holidays</h3>
+              )}
             </div>
           </div>
 

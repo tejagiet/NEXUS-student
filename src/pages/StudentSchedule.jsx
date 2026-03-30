@@ -23,6 +23,35 @@ export default function StudentSchedule({ profile }) {
   const scrollRef = useRef(null)
   const todayRef = useRef(null)
 
+  // Logic to group consecutive lab slots
+  const groupSlots = (slots) => {
+    if (!slots || slots.length === 0) return []
+    const grouped = []
+    let currentGroup = null
+
+    const sorted = [...slots].sort((a, b) => a.slot - b.slot)
+
+    sorted.forEach((slot) => {
+      const isLab = slot.type?.toLowerCase() === 'lab'
+      
+      // Merge if it's a lab, and the subject matches the previous slot, and it's consecutive
+      if (isLab && currentGroup && slot.subjects?.name === currentGroup.subjects?.name && slot.slot === Math.max(...currentGroup.slots) + 1) {
+        currentGroup.slots.push(slot.slot)
+        currentGroup.endTime = SLOT_TIMES[slot.slot].split(' - ')[1]
+      } else {
+        currentGroup = {
+          ...slot,
+          isGroup: isLab,
+          slots: [slot.slot],
+          startTime: SLOT_TIMES[slot.slot].split(' - ')[0],
+          endTime: SLOT_TIMES[slot.slot].split(' - ')[1]
+        }
+        grouped.push(currentGroup)
+      }
+    })
+    return grouped
+  }
+
   // Generate 120 days rolling window for the semester
   useEffect(() => {
     const generated = []
@@ -70,7 +99,7 @@ export default function StudentSchedule({ profile }) {
         .from('timetable_slots')
         .select('*, subjects(name, code)')
         .eq('branch', profile.branch)
-        .eq('semester', 'Sem 4') // Default
+        .eq('semester', profile.semester || 'Sem 4') 
         .eq('section', profile.section)
       
       if (viewMode === 'day') {
@@ -82,14 +111,20 @@ export default function StudentSchedule({ profile }) {
 
       if (data) {
         if (viewMode === 'week') {
-          const grouped = data.reduce((acc, slot) => {
+          const groupedByDay = data.reduce((acc, slot) => {
             if (!acc[slot.day]) acc[slot.day] = []
             acc[slot.day].push(slot)
             return acc
           }, {})
-          setSchedule(grouped)
+          
+          // Apply lab grouping for each day
+          const finalGrouped = {}
+          Object.keys(groupedByDay).forEach(day => {
+            finalGrouped[day] = groupSlots(groupedByDay[day])
+          })
+          setSchedule(finalGrouped)
         } else {
-          setSchedule(data)
+          setSchedule(groupSlots(data))
         }
       }
     } catch (err) {
@@ -100,21 +135,24 @@ export default function StudentSchedule({ profile }) {
   }
 
   const renderSlotCard = (slot, i) => (
-    <div key={i} className="card-editorial p-4 flex flex-col gap-4 group active:scale-[0.98]">
+    <div key={i} className={`card-editorial p-4 flex flex-col gap-4 group active:scale-[0.98] ${slot.isGroup ? 'border-l-4 border-indigo-500 bg-indigo-50/20' : ''}`}>
       <div className="flex justify-between items-start">
         <div className="space-y-0.5">
-          <p className="font-label text-[8px] font-black text-primary/40 uppercase tracking-[0.2em]">{SLOT_TIMES[slot.slot]}</p>
+          <p className="font-label text-[8px] font-black text-primary/40 uppercase tracking-[0.2em]">
+            {slot.startTime} - {slot.endTime}
+            {slot.isGroup && <span className="ml-2 text-indigo-400">({slot.slots.length} Periods)</span>}
+          </p>
           <h3 className="font-headline font-black text-on-surface text-base tracking-tight leading-tight uppercase line-clamp-1">{slot.subjects?.name}</h3>
         </div>
-        <div className={`px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${slot.type === 'lab' ? 'bg-indigo-50 text-indigo-600' : 'bg-teal-50 text-teal-600'}`}>
+        <div className={`px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${slot.type?.toLowerCase() === 'lab' ? 'bg-indigo-100 text-indigo-700 shadow-sm' : 'bg-teal-50 text-teal-600'}`}>
           {slot.type || 'Lecture'}
         </div>
       </div>
 
       <div className="flex items-center justify-between pt-3 border-t border-surface-container-low">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-surface-container-low flex items-center justify-center text-primary border border-outline-variant/10 shadow-inner">
-                <span className="font-headline font-black text-xs">{slot.subjects?.name.charAt(0)}</span>
+            <div className={`w-8 h-8 rounded-xl flex items-center justify-center border border-outline-variant/10 shadow-inner ${slot.isGroup ? 'bg-indigo-500 text-white' : 'bg-surface-container-low text-primary'}`}>
+                <span className="font-headline font-black text-xs">{slot.subjects?.name?.charAt(0)}</span>
             </div>
             <div>
                 <p className="text-[8px] font-black text-on-surface-variant uppercase tracking-widest opacity-40">Faculty</p>
@@ -197,7 +235,7 @@ export default function StudentSchedule({ profile }) {
               )}
             </div>
           ) : (
-            /* Weekly View Mode (Now includes Saturday) */
+            /* Weekly View Mode (With Lab Grouping) */
             <div className="flex flex-col gap-10 animate-in fade-in duration-500">
               {DAYS_ORDER.map((day) => (
                 <div key={day} className="space-y-4">

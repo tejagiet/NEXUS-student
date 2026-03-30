@@ -87,8 +87,8 @@ export default function StudentChatRoom({ profile, room, onBack }) {
               const isStaff = ['faculty', 'admin', 'principal', 'hod'].includes(m.profiles?.role)
               
               return (
-                <div key={i} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[85%] ${isMe ? 'self-end' : 'self-start'} animate-in fade-in duration-500`}>
-                  <div className={`${isMe ? 'bg-primary text-white shadow-xl shadow-primary/10' : (isStaff ? 'bg-secondary-container text-on-secondary-container' : 'bg-surface-container-lowest text-on-surface')} p-5 rounded-3xl shadow-[0px_12px_32px_rgba(39,42,111,0.06)] flex flex-col gap-2`}>
+                <div key={i} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[72%] ${isMe ? 'self-end' : 'self-start'} animate-in fade-in duration-500`}>
+                  <div className={`${isMe ? 'bg-primary text-white shadow-xl shadow-primary/10' : (isStaff ? 'bg-secondary-container text-on-secondary-container' : 'bg-surface-container-lowest text-on-surface')} p-3.5 rounded-2xl shadow-[0px_8px_24px_rgba(39,42,111,0.04)] flex flex-col gap-1.5`}>
                     <div className="flex justify-between items-center gap-4">
                       <span className={`font-headline font-black text-[10px] uppercase tracking-wider ${isMe ? 'text-white/60' : (isStaff ? 'text-primary' : 'text-green-700')}`}>
                         {m.profiles?.full_name?.split(' ')[0] || 'Member'} {isStaff && '• STAFF'}
@@ -97,7 +97,7 @@ export default function StudentChatRoom({ profile, room, onBack }) {
                         {new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
-                    <div className="text-sm leading-relaxed font-body font-medium">
+                    <div className="text-[12px] leading-relaxed font-body font-medium">
                       {m.content}
                     </div>
                   </div>
@@ -110,10 +110,10 @@ export default function StudentChatRoom({ profile, room, onBack }) {
       </main>
 
       {/* Input Area */}
-      <form onSubmit={sendMessage} className="fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md p-6 pb-8 z-50 shadow-[0px_-12px_32px_rgba(39,42,111,0.04)]">
-        <div className="max-w-4xl mx-auto flex items-center gap-4">
-          <button type="button" className="material-symbols-outlined text-primary bg-primary/10 p-3 rounded-2xl hover:bg-primary/20 transition-all active:scale-95">add</button>
-          <div className="flex-1 bg-surface-container-low rounded-[2rem] flex items-center px-6 py-3 border border-outline-variant/5">
+      <form onSubmit={sendMessage} className="fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md p-4 pb-6 z-50 shadow-[0px_-8px_24px_rgba(39,42,111,0.04)]">
+        <div className="max-w-4xl mx-auto flex items-center gap-3">
+          <button type="button" className="material-symbols-outlined text-primary bg-primary/10 p-2.5 rounded-xl hover:bg-primary/20 transition-all active:scale-95 text-xl">add</button>
+          <div className="flex-1 bg-surface-container-low rounded-2xl flex items-center px-4 py-2 border border-outline-variant/5">
             <input 
               value={newMessage}
               onChange={e => setNewMessage(e.target.value)}

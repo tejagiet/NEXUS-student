@@ -8,6 +8,7 @@ import StudentChatRoom from './pages/StudentChatRoom'
 import StudentNotices from './pages/StudentNotices'
 import StudentProfile from './pages/StudentProfile'
 import FinancePortal from './components/FinancePortal'
+import AcademicCalendar from './components/AcademicCalendar'
 import { supabase } from './lib/supabase'
 
 export default function StudentApp({ profile, session }) {
@@ -25,6 +26,7 @@ export default function StudentApp({ profile, session }) {
       case 'notices': return <StudentNotices profile={profile} />
       case 'profile': return <StudentProfile profile={profile} session={session} />
       case 'fees': return <FinancePortal profile={profile} />
+      case 'calendar': return <AcademicCalendar profile={profile} />
       default: return <StudentHome profile={profile} setTab={setActiveTab} />
     }
   }
@@ -130,6 +132,7 @@ export default function StudentApp({ profile, session }) {
                     { id: 'academics', label: 'LMS Portal', icon: 'school' },
                     { id: 'fees', label: 'Fee Payments', icon: 'payments' },
                     { id: 'schedule', label: 'Daily Schedule', icon: 'calendar_month' },
+                    { id: 'calendar', label: 'Academic Calendar', icon: 'event_available' },
                     { id: 'chat', label: 'Faculty Help', icon: 'contact_support' },
                     { id: 'profile', label: 'Settings', icon: 'settings' },
                  ].map(item => (
